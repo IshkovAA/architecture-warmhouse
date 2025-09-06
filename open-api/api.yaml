@@ -1,0 +1,289 @@
+openapi: 3.0.4
+info:
+  title: Swagger WarmHoouse - OpenAPI 3.0
+  version: 1.0.0
+
+tags:
+  - name: device
+    description: Operations with device
+
+  - name: user
+    description: Operations with user
+
+paths:
+  /devices:
+    get:
+      tags:
+        - device
+      summary: Get all devices.
+      operationId: getDevices
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/device'
+        '400':
+          description: Invalid status value
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - device
+      summary: Register a device
+      operationId: registerDevice
+      parameters:
+        - name: location
+          in: query
+          description: location of device
+          schema:
+            type: string
+        - name: serialNumber
+          in: query
+          description: serial number of device
+          schema:
+            type: string
+        - name: userId
+          in: query
+          description: ID of user
+          schema:
+            type: string
+            format: uuid
+        - name: typeId
+          in: query
+          description: Type of device
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/device'
+        '400':
+          description: Invalid input
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /devices/{deviceId}:
+    get:
+      tags:
+        - device
+      summary: Find device by ID.
+      description: Returns a single device.
+      operationId: getDeviceById
+      parameters:
+        - name: deviceId
+          in: path
+          description: ID of device to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/device'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: device not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      tags:
+        - device
+      summary: Updates a device info.
+      operationId: updateDevice
+      parameters:
+        - name: deviceId
+          in: path
+          description: ID of device that needs to be updated
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: location
+          in: query
+          description: location of device
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: status of device
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/device'
+        '400':
+          description: Invalid input
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags:
+        - device
+      summary: Deletes a device.
+      description: Delete a device.
+      operationId: deleteDevice
+      parameters:
+        - name: deviceId
+          in: path
+          description: device id to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: device deleted
+        '400':
+          description: Invalid device value
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user/login:
+    get:
+      tags:
+        - user
+      summary: Logs user into the system.
+      description: Log into the system.
+      operationId: loginUser
+      parameters:
+        - name: login
+          in: query
+          description: The user name for login
+          required: false
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Invalid username/password supplied
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user/logout:
+    get:
+      tags:
+        - user
+      summary: Logs out current logged in user session.
+      description: Log user out of the system.
+      operationId: logoutUser
+      parameters: [ ]
+      responses:
+        '200':
+          description: successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    device:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 87356ce6-6f51-46c0-bf88-eb03b37b4dfc
+        user_id:
+          type: string
+          format: uuid
+          example: 87356ce6-6f51-46c0-bf88-eb03b37b4dfc
+        type_id:
+          type: string
+          format: uuid
+          example: 87356ce6-6f51-46c0-bf88-eb03b37b4dfc
+        location:
+          type: string
+          example: room_1
+        status:
+          type: boolean
+          description: device status
+          enum:
+            - on
+            - off
+        serial_number:
+          type: string
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+  requestBodies:
+    device:
+      description: device object that needs to be added
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/device'

@@ -1,0 +1,27 @@
+@startuml
+
+title Диаграмма компонентов сервиса пользователей (Задание 2)
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+Container_Boundary(Smarthome, "Система Теплый дом") {
+  Container(UsersService, "Users Service", "Go", "Управляет взаимодействием с пользователями")
+  Container(UserDatabase, "Users Database", "PostgreSQL", "Хранит данные о пользователях")
+}
+
+Container(UsersService, "Users Service", "Go") {
+  Component(AuthController, "Auth Controller", "Обрабатывает аутентификацию и авторизацию")
+  Component(UserController, "User Controller", "Управляет пользователями системы")
+  Component(ServiceLayer, "Service Layer", "Бизнес логика сервиса")
+  Component(RepositoryLayer, "Repository Layer", "Логика доступа к данным")
+}
+
+Rel(AuthController, ServiceLayer,"Вызвает бизнес логику по аутентификации и авторизации")
+Rel(UserController, ServiceLayer,"Вызывает бизнес логику по управлению пользователями")
+Rel(ServiceLayer, RepositoryLayer,"Записывает и читает данные о пользователях")
+Rel(RepositoryLayer, UserDatabase, "Записывает и получает данные о пользователях")
+
+@enduml

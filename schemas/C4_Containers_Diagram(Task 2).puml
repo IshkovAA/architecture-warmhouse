@@ -1,0 +1,39 @@
+@startuml
+
+title Диаграмма контекста системы "Теплый дом" (Задание 2)
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(User, "Пользователь", "Пользователь системы Теплый дом")
+
+Container_Boundary(smarthome, "Система Теплый дом") {
+  Container(WebApp, "Web Application", "ASP.NET Core", "Входная точка в систему")
+  Container(UsersService, "Users service", "Go", "Управляет взаимодействием с пользователями")
+  Container(DevicesService, "Devices service", "Go", "Управляет устройствами")
+  Container(MonitoringService, "Monitoring Service", "Go", "Осуществляет мониторинг устройств")
+  Container(DevicesDatabase, "Devices Database", "PostgreSQL", "Хранит данные по устройствам")
+  Container(MonitoringDatabase, "Monitoring Database", "PostgreSQL", "Хранит данные по мониторингу устройств")
+  Container(UserDatabase, "Users Database", "PostgreSQL", "Хранит данные о пользователях")
+  Container(MessageBroker, "Message Broker", "Kafka", "Брокер сообщений Kafka")
+}
+
+System_Ext(Devices, "Devices", "Умные устройства и датчики, установленные в домах")
+
+Rel(User, WebApp, "Управляет устройствами и просматривает их состояние")
+
+Rel(WebApp, UsersService, "Регистрирует и авторизует пользователей")
+Rel(WebApp, DevicesService, "Передает команды для управления устройствами")
+Rel(WebApp, MonitoringService, "Получает данные по мониторингу устройств")
+
+Rel(DevicesService, MessageBroker, "Отправляет команды для устройств")
+Rel(MessageBroker, Devices, "Передает команды устройствам")
+Rel(Devices, MessageBroker, "Отправляют данные о своем состоянии")
+Rel(MessageBroker, MonitoringService, "Передает данные о состоянии устройств")
+Rel(MessageBroker, DevicesService, "Передает данные о текущем состоянии устройств")
+
+Rel(UsersService, UserDatabase, "Записывает и получает данные о пользователях")
+Rel(DevicesService, DevicesDatabase, "Добавляет устройства, команды и информацию о них")
+Rel(MonitoringService, MonitoringDatabase, "Записывает и получает данные по мониторингу устройств")
+@enduml

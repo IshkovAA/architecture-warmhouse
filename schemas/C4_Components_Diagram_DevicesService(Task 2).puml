@@ -1,0 +1,34 @@
+@startuml
+
+title Диаграмма компонентов сервиса пользователей (Задание 2)
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+Container_Boundary(Smarthome, "Система Теплый дом") {
+  Container(DevicesService, "Devices service", "Go", "Управляет устройствами")
+  Container(MessageBroker, "Message Broker", "Kafka", "Брокер сообщений Kafka")
+  Container(DevicesDatabase, "Devices Database", "PostgreSQL", "Хранит данные по устройствам")
+}
+
+Container(DevicesService, "Devices service", "Go") {
+  Component(DeviceController, "Device Controller", "Обрабатывает действия над устройствами")
+  Component(DeviceStateManager, "Device State Manager", "Управляет текущим состоянием устройств")
+  Component(CommandHandler, "Command Handler", "Обрабатывает команды для устройств")
+  Component(Consumer, "Consumer", "Читает сообщения из брокера сообщений")
+  Component(Producer, "Producer", "Отправляет сообщений в брокер сообщений")
+  Component(RepositoryLayer, "Repository Layer", "Логика доступа к данным")
+}
+
+Rel(DeviceController, CommandHandler, "Вызвает обработчик команд для устройств")
+Rel(DeviceController, DeviceStateManager, "Получает текущее состояние устройств")
+Rel(CommandHandler, Producer, "Передает команды для устройств")
+Rel(DeviceStateManager, RepositoryLayer, "Записывает и получает текущее состояние устройств")
+Rel(Consumer, DeviceStateManager, "Читает данные о текущем состоянии устройств")
+Rel(MessageBroker, Consumer, "Получает текущее состояние устройств")
+Rel(Producer, MessageBroker, "Отправляет команды для устройств в брокер сообщений")
+Rel(RepositoryLayer, DevicesDatabase, "Записывает и получает данные об устройствах")
+
+@enduml

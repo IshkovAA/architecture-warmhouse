@@ -1,0 +1,29 @@
+@startuml
+
+title Диаграмма компонентов сервиса мониторинга (Задание 2)
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+Container_Boundary(Smarthome, "Система Теплый дом") {
+  Container(MonitoringService, "Monitoring Service", "Go", "Осуществляет мониторинг устройств")
+  Container(MessageBroker, "Message Broker", "Kafka", "Брокер сообщений Kafka")
+  Container(MonitoringDatabase, "Monitoring Database", "PostgreSQL", "Хранит данные по мониторингу устройств")
+}
+
+Container(MonitoringService, "Monitoring Service", "Go") {
+  Component(MonitoringController, "Monitroing Controller", "Обрабатывает запросы по мониторингу устройств")
+  Component(ServiceLayer, "Service Layer", "Бизнес логика по сохранению и получению данных мониторинга устройств")
+  Component(Consumer, "Consumer", "Читает сообщения из брокера сообщений")
+  Component(RepositoryLayer, "Repository Layer", "Логика доступа к данным")
+}
+
+Rel(MonitoringController, ServiceLayer, "Вызвает бизнес логику по получению данных мониторинга устройств")
+Rel(ServiceLayer, RepositoryLayer, "Записывает и получает данные о мониторинге устройств")
+Rel(Consumer, ServiceLayer, "Читает данные о текущем состоянии устройств")
+Rel(MessageBroker, Consumer, "Получает текущее состояние устройств")
+Rel(RepositoryLayer, MonitoringDatabase, "Записывает и получает данные о мониторинге устройств")
+
+@enduml

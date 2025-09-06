@@ -1,0 +1,36 @@
+@startuml
+
+title ER Диаграмма для системы "Теплый дом"
+
+entity "User" {
+  +id : UUID
+  username : String
+  password : String
+  email : String
+}
+
+entity "Device" {
+  +id: UUID
+  type_id: UUID
+  serial_number : String
+  user_id : UUID
+  status : Bool
+  location : String
+}
+
+entity "DeviceType" {
+  +id: UUID
+  name : String
+}
+
+entity "MonitoringData" {
+  +id : UUID
+  device_id : UUID
+  data : JSON
+  moment : DateTime
+}
+
+User "1" -- "0..*" Device : "Owns"
+Device "1" -- "1" DeviceType : "Is"
+Device "1" -- "0..*" MonitoringData : "Has"
+@enduml
